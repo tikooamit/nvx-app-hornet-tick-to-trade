@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Service xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.neeveresearch.com/schema/x-tsml" namespace="com.neeve.toa.sample.oms" name="market">
+    <Models>
+        <Model file="com/neeve/tick2trade/messages/messages.xml"/>
+    </Models>
+    <Channels prefixChannelNames="false">
+        <Channel bus="ems" name="morders" key="null"/>
+        <Channel bus="ems" name="mconfirm" key="null"/>
+        <Channel bus="ems" name="mfill" key="null"/>
+        <Channel bus="ems" name="mcontrol" key="null"/>
+    </Channels>
+    <Roles>
+        <To role="Market">
+          <Message name="MarketNewOrderSingle" channel="morders"/>
+          <Message name="WarmupComplete" channel="mcontrol"/>
+        </To>
+        <To role="Oms">
+            <Message name="MarketOrderNew" channel="mconfirm"/>
+            <Message name="MarketTrade" channel="mfill"/>
+        </To>
+    </Roles>
+</Service>
