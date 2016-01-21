@@ -7,7 +7,23 @@
     <version>3.1-SNAPSHOT</version>
     <name>Tick2Trade Simulator Application</name>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Neeve Research, LLC</name>
+        <url>http://www.neeveresearch.com</url>
+    </organization>
+
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vendor.name>Neeve Research, LLC</vendor.name>
         <nvx.core.version>3.1-SNAPSHOT</nvx.core.version>
         <nvx.hornet.version>1.1-SNAPSHOT</nvx.hornet.version>
     </properties>
@@ -25,6 +41,7 @@
             </releases>
         </repository>
         
+        <!--  Private Repositories -->
         <repository>
             <id>neeve-snapshot</id>
             <url>http://maven.neeveresearch.com/nexus/content/repositories/snapshots/</url>
@@ -75,6 +92,7 @@
             </releases>
         </pluginRepository>
         
+        <!--  Private Repositories -->
         <pluginRepository>
             <id>neeve-snapshot</id>
             <url>http://maven.neeveresearch.com/nexus/content/repositories/snapshots/</url>
