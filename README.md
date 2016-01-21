@@ -11,7 +11,9 @@ A Hornet Based EMS App For Low Latency Trading
 
 **See how an application on top of the Hornet and The XPLatform a 100% Pure Jave application with no infrastructure code needed can server up trades in 10s of microsends.**
 
-[Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-app-tick2trade.pdf)
+As Reference:
+* [Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-low-latency-apps)
+* [Introduction to the X Platform](www.neeveresearch.com/introduction)
 
 ---
 
