@@ -4,15 +4,15 @@
         <Model file="com/neeve/tick2trade/messages/messages.xml"/>
     </Models>
     <Channels prefixChannelNames="false">
-        <Channel bus="ems" name="morders" key="null"/>
-        <Channel bus="ems" name="mconfirm" key="null"/>
-        <Channel bus="ems" name="mfill" key="null"/>
-        <Channel bus="ems" name="mcontrol" key="null"/>
+        <Channel bus="ems" name="morders" key="morders"/>
+        <Channel bus="ems" name="mconfirm" key="mconfirm"/>
+        <Channel bus="ems" name="mfill" key="mfill"/>
+        <Channel bus="ems" name="control" key="control"/>
     </Channels>
     <Roles>
         <To role="Market">
           <Message name="MarketNewOrderSingle" channel="morders"/>
-          <Message name="WarmupComplete" channel="mcontrol"/>
+          <Message name="WarmupComplete" channel="control"/>
         </To>
         <To role="Oms">
             <Message name="MarketOrderNew" channel="mconfirm"/>

@@ -4,10 +4,10 @@
         <Model file="com/neeve/tick2trade/messages/messages.xml"/>
     </Models>
     <Channels prefixChannelNames="false">
-        <Channel name="orders" bus="ems" key="null"/>
-        <Channel name="trade" bus="ems" key="null"/>
-        <Channel name="confirm" bus="ems" key="null"/>
-        <Channel name="control" bus="ems" key="null"/>       
+        <Channel name="orders" bus="ems" key="orders"/>
+        <Channel name="trade" bus="ems" key="trade"/>
+        <Channel name="confirm" bus="ems" key="confirm"/>
+        <Channel name="control" bus="ems" key="control"/>       
     </Channels>
     <Roles>
         <To role="Ems">

@@ -90,7 +90,7 @@
             </time>
 
             <!-- Enable Stats -->
-            <msgtype.latency.stats>true</msgtype.latency.stats>
+            <msgtype.latency.stats>false</msgtype.latency.stats>
             <latencymanager.samplesize>10240</latencymanager.samplesize>
             <simulator.client.sampleIntervalMillis>5000</simulator.client.sampleIntervalMillis>
             <msg.latency.stats>true</msg.latency.stats>
@@ -113,6 +113,7 @@
                     <latency.stats>true</latency.stats>
                     <event.latency.stats>false</event.latency.stats>
                     <msgtype.stats>false</msgtype.stats>
+		                <stats.interval>0</stats.interval>
                 </ems>
             </aep>
         </nv>
@@ -129,10 +130,10 @@
             </market>
         </simulator>
 
-        <!-- Trace -->
-        <nv.server.stats.userstats.trace>debug</nv.server.stats.userstats.trace>
-        <nv.aep.trace>info</nv.aep.trace>
-        <nv.toa.trace>info</nv.toa.trace>
+        <!-- Trace -->       
+        <nv.server.stats.pool.trace>info</nv.server.stats.pool.trace>
+        <nv.aep.trace>config</nv.aep.trace>
+        <nv.toa.trace>config</nv.toa.trace>
         <client.trace>true</client.trace>
         <market.trace>info</market.trace>
         <ems.trace>info</ems.trace>
@@ -164,7 +165,7 @@
                         <queueDrainerCpuAffinityMask>${EMS_EMSDETACHEDSENDCPUAFFMASK::0}</queueDrainerCpuAffinityMask>
                     </detachedSend>
                 </bus>
-                <bus name="market">
+                <bus name="market" enabled="${MARKET_BUS_ENABLED:true}">
                     <nonBlockingInboundMessageDispatch>${EMS_MARKETNONBLOCKINGMESSAGEDISPATCH::true}</nonBlockingInboundMessageDispatch>
                     <detachedSend enabled="${EMS_MARKETDETACHEDSEND::true}">
                         <queueOfferStrategy>SingleThreaded</queueOfferStrategy>
@@ -218,7 +219,7 @@
                         <queueDrainerCpuAffinityMask>${MARKET_EMSDETACHEDSENDCPUAFFMASK::0}</queueDrainerCpuAffinityMask>
                     </detachedSend>
                 </bus>
-                <bus name="market">
+                <bus name="market" enabled="${MARKET_BUS_ENABLED:true}">
                     <detachedSend enabled="${MARKET_MARKETDETACHEDSEND::true}">
                         <queueOfferStrategy>SingleThreaded</queueOfferStrategy>
                         <queueWaitStrategy>${MARKET_MARKETDETACHEDSEND_WAIT_STRATEGY::BusySpin}</queueWaitStrategy>
@@ -271,7 +272,7 @@
             </multiThreading>
         </server>
 
-        <server name="ems2" group="default" >
+        <server name="ems2" group="default">
             <apps>
                 <app name="ems" autoStart="true" />
             </apps>
@@ -317,5 +318,3 @@
         </server>
     </servers>
 </model>
-
-

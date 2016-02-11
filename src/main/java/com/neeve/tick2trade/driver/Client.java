@@ -11,6 +11,7 @@ import com.neeve.aep.AepEngine;
 import com.neeve.aep.AepEngine.HAPolicy;
 import com.neeve.aep.AepEngineDescriptor;
 import com.neeve.aep.annotations.EventHandler;
+import com.neeve.aep.event.AepChannelUpEvent;
 import com.neeve.ci.XRuntime;
 import com.neeve.cli.annotations.Command;
 import com.neeve.io.IOElasticBuffer;
@@ -18,11 +19,11 @@ import com.neeve.lang.XString;
 import com.neeve.pkt.PktHeader;
 import com.neeve.pkt.PktPacket;
 import com.neeve.pkt.PktSerializer;
-import com.neeve.rog.IRogMessage;
 import com.neeve.root.RootConfig;
 import com.neeve.server.app.annotations.AppHAPolicy;
 import com.neeve.server.app.annotations.AppMain;
 import com.neeve.server.app.annotations.AppVersion;
+import com.neeve.sma.MessageChannel;
 import com.neeve.sma.MessageChannel.Qos;
 import com.neeve.sma.SmaException;
 import com.neeve.tick2trade.acl.EMSNewOrderSinglePopulator;
@@ -203,8 +204,7 @@ final public class Client extends TopicOrientedApplication {
         }
     }
 
-    final public static XString EMS_BUS_NAME = XString.create("ems", false, true);
-    final public static XString EMS_ORDERS = XString.create("orders", false, true);
+    final private static Qos qos = Qos.valueOf(XRuntime.getValue("simulator.qos", "Guaranteed"));
     final public static long senderAffinity = UtlThread.parseAffinityMask(XRuntime.getValue("simulator.client.sendAffinity", "0"));
     final public static long clientStatsInterval = XRuntime.getValue("simulator.client.statsIntervalMillis", 5000);
     final public static long manualWarmupIntermission = XRuntime.getValue("simulator.manualWarmupIntermission", 30000);
@@ -229,6 +229,7 @@ final public class Client extends TopicOrientedApplication {
     // private members
     final private static Tracer tracer = RootConfig.ObjectConfig.createTracer(RootConfig.ObjectConfig.get("client"));
     private Runner _runner;
+    private MessageChannel ordersChannel;
 
     static {
         // id generator
@@ -294,14 +295,20 @@ final public class Client extends TopicOrientedApplication {
     }
 
     @Override
-    public Qos getChannelQos(ToaService service, ToaServiceChannel channel) {
-        return Qos.BestEffort;
+    public final Qos getChannelQos(final ToaService service, final ToaServiceChannel channel) {
+        return qos;
     }
 
     final private void send(final int count, final int rate) throws Exception {
         System.out.println("Parameters");
         System.out.println("...count=" + count);
         System.out.println("...rate=" + rate);
+        synchronized (this) {
+            while (ordersChannel == null) {
+                System.out.println("Waiting for orders channel to come up...");
+                wait();
+            }
+        }
         _runner = new Runner(count < 0 ? Integer.MAX_VALUE : count, rate, senderAffinity, clientStatsInterval);
         _runner.running(true);
         _runner.start();
@@ -389,6 +396,16 @@ final public class Client extends TopicOrientedApplication {
         }
     }
 
+    @EventHandler(source = "orders@ems")
+    final public void onOrdersChannelUp(AepChannelUpEvent event) {
+        synchronized (this) {
+            //Listen
+            ordersChannel = event.getMessageChannel();
+            notifyAll();
+        }
+
+    }
+
     @Command(description = "Triggers a full GC.")
     final private void gc() throws Exception {
         Thread thread = new Thread() {
@@ -422,9 +439,7 @@ final public class Client extends TopicOrientedApplication {
         tracer.log("[Client] WARMUP COMPLETE", Tracer.Level.INFO);
 
         // send warmup complete
-        final IRogMessage msg = WarmupComplete.create();
-        msg.setMessageBusAsRaw(EMS_BUS_NAME);
-        msg.setMessageChannelAsRaw(EMS_ORDERS);
+        final WarmupComplete msg = WarmupComplete.create();
         sendMessage(msg);
         flush();
 

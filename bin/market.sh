@@ -12,12 +12,12 @@ if [ "$#" -lt 1 ]
 then
   echo "Usage: run.sh <profile-folder>"
   echo " For example:"
-  echo " numactl -m1 ./market.sh multiproc"
+  echo " numactl -m1 ./market.sh direct"
   popd > /dev/null
   exit 1
 fi
 
-APPCONF=conf/$1/market.conf
+APPCONF=conf/profiles/$1/market.conf
 shift
 
 GC_ARGS="-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -Xms1572m -Xmx1572m -XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:SurvivorRatio=32 -XX:+UseParNewGC -XX:ParallelGCThreads=3 -Xnoclassgc -XX:MaxTenuringThreshold=5"

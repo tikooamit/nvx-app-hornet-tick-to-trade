@@ -163,7 +163,7 @@ final public class Ems {
     //                                                                           //
     // Command handlers can be invoked remotely via management tools such as     //
     // Robin.                                                                    //
-    // ////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
     final public void reset() throws Exception {
         rcvdOrderCount = 0;

@@ -114,15 +114,21 @@ final public class App extends TopicOrientedApplication {
     final private Tracer tracer = RootConfig.ObjectConfig.createTracer(RootConfig.ObjectConfig.get("ems"));
 
     /**
-     * Hooks into platform latency statistics to calculate TTFS and Tick To
-     * Trade Latencies
+     * Hooks into platform latency statistics to calculate Time To First Slice
+     * and Tick To
+     * Trade Latencies.
      */
     final private class TickToTradeCalculator implements UpdateListener {
         @Override
         public void onUpdate(MessageBusBinding binding, MessageView view, MessagingDirection direction) {
             if (direction == MessagingDirection.Outbound && view instanceof MarketNewOrderSingle) {
                 MarketNewOrderSingle mnos = (MarketNewOrderSingle) view;
+                // when the MarketNewOrderSingle is sent the handler copies the post wire
+                // timestamp of the EMSNewOrderSingle onto it which allows calculation of the
+                // time spent in process before the slice is sent out:
                 timeToFirstSliceLatencies.add(mnos.getPreWireTs() - mnos.getPostWireTs());
+                // The tick time is the time from the tick that triggered the MarketNewOrderSingle
+                // to the time it was written to the wire:
                 tickToTradeLatencies.add(mnos.getPreWireTs() - mnos.getTickTs());
             }
         }
@@ -144,6 +150,7 @@ final public class App extends TopicOrientedApplication {
 
     // whether to use one or two buses
     final private boolean useSingleBus = XRuntime.getValue("simulator.useSingleBus", false);
+    final private static Qos qos = Qos.valueOf(XRuntime.getValue("simulator.qos", "Guaranteed"));
     final private Ems ems = new Ems(this, tracer);
     final private Sor sor = new Sor(this, tracer);
 
@@ -188,11 +195,17 @@ final public class App extends TopicOrientedApplication {
         return new ServiceLoader();
     }
 
+    /**
+     * The service loader allows switching between different service
+     * configurations
+     * depending on the number of buses uses which allows for trying out
+     * different
+     * bus topologies with the app. This is not normally required.
+     */
     private final class ServiceLoader extends AbstractServiceDefinitionLocator {
 
         @Override
         public void locateServices(Set<URL> urls) throws Exception {
-            // TODO Auto-generated method stub
             if (useSingleBus) {
                 urls.add(new File(XRuntime.getRootDirectory(), "conf/services/singlebus/marketService.xml").toURI().toURL());
                 urls.add(new File(XRuntime.getRootDirectory(), "conf/services/singlebus/emsService.xml").toURI().toURL());
@@ -204,10 +217,11 @@ final public class App extends TopicOrientedApplication {
     }
 
     @Override
-    public Qos getChannelQos(ToaService service, ToaServiceChannel channel) {
-        return Qos.BestEffort;
+    public final Qos getChannelQos(final ToaService service, final ToaServiceChannel channel) {
+        return qos;
     }
 
+    @Override
     final protected void onAppInitialized() throws Exception {
         tracer.log("Parameters", Level.INFO);
         ems.configure();
@@ -215,11 +229,13 @@ final public class App extends TopicOrientedApplication {
         tracer.log("...singleBus=" + useSingleBus, Level.INFO);
     }
 
+    @Override
     final protected void addHandlerContainers(Set<Object> containers) {
         containers.add(ems);
         containers.add(sor);
     }
 
+    @Override
     final protected void addAppStatContainers(Set<Object> containers) {
         containers.add(ems);
     }
@@ -274,11 +290,10 @@ final public class App extends TopicOrientedApplication {
 
     @EventHandler
     public void onMessagingStarted(AepMessagingStartedEvent event) {
-        if (getEngine() != null) {
-            for (IAepBusManagerStats abms : getEngine().getStats().getBusManagerStats()) {
-                if (abms.getLatencyManager() != null) {
-                    abms.getLatencyManager().setUpdateListener(tickToTradeListener);
-                }
+        // To capture tick to trade statistic  
+        for (IAepBusManagerStats abms : getEngine().getStats().getBusManagerStats()) {
+            if (abms.getLatencyManager() != null) {
+                abms.getLatencyManager().setUpdateListener(tickToTradeListener);
             }
         }
     }

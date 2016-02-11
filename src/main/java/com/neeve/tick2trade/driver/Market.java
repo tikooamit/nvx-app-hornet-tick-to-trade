@@ -53,6 +53,7 @@ final public class Market extends TopicOrientedApplication {
     private final Tracer tracer = RootConfig.ObjectConfig.createTracer(RootConfig.ObjectConfig.get("market"));
     // whether to use one or two buses.
     private final boolean useSingleBus = XRuntime.getValue("simulator.useSingleBus", false);
+    private final Qos qos = Qos.valueOf(XRuntime.getValue("simulator.qos", "Guaranteed"));
     private final boolean sendFills = XRuntime.getValue("simulator.market.sendFills", true);
     private final boolean sendAcks = XRuntime.getValue("simulator.market.sendAcks", true);
     private final XString orderId = XString.create(32, true, true);
@@ -109,8 +110,7 @@ final public class Market extends TopicOrientedApplication {
     private final class ServiceLoader extends AbstractServiceDefinitionLocator {
 
         @Override
-        public void locateServices(Set<URL> urls) throws Exception {
-            // TODO Auto-generated method stub
+        public final void locateServices(final Set<URL> urls) throws Exception {
             if (useSingleBus) {
                 urls.add(new File(XRuntime.getRootDirectory(), "conf/services/singlebus/marketService.xml").toURI().toURL());
             } else {
@@ -120,8 +120,8 @@ final public class Market extends TopicOrientedApplication {
     }
 
     @Override
-    public Qos getChannelQos(ToaService service, ToaServiceChannel channel) {
-        return Qos.BestEffort;
+    public final Qos getChannelQos(final ToaService service, final ToaServiceChannel channel) {
+        return qos;
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ final public class Market extends TopicOrientedApplication {
     final public void reset() throws Exception {
         orderId.clear();
         lastSlice.clear();
-        msgCount.reset();
+        //msgCount.reset();
         tfsLatencies.reset();
 
         if (getEngine() != null) {

@@ -30,11 +30,11 @@ import com.neeve.util.UtlStr;
 import com.neeve.util.UtlStr.ISubstResolver;
 
 /**
- * Base class with some helper methods for creating embedded servers. 
+ * Base class with some helper methods for creating embedded servers.
  */
 public class AbstractAppTest extends UnitTest {
     private static volatile boolean vmConfigured = false;
-    private static final String desktopConf = "conf/desktop/application.conf";
+    private static final String desktopConf = "conf/profiles/desktop/application.conf";
 
     @BeforeClass
     public static void unitTestIntialize() throws IOException {
@@ -52,19 +52,23 @@ public class AbstractAppTest extends UnitTest {
         vmConfigured = false;
     }
 
-    private static class PocConfigurer implements Configurer, ISubstResolver {
+    /**
+     * This configurer loads the properties single vm properties file to
+     * configure
+     * for running all servers embedded in one vm to ease testing.
+     */
+    private static class EmbeddedTestServerConfigurer implements Configurer, ISubstResolver {
         private final String serverName;
         private final ISubstResolver envResolver = new UtlStr.SubstResolverFromEnv();
         final Map<String, String> overrides = new HashMap<String, String>();
 
-        PocConfigurer(final String serverName, Map<String, String> configOverrides) {
+        EmbeddedTestServerConfigurer(final String serverName, Map<String, String> configOverrides) {
             this.serverName = serverName;
             Properties props = new Properties();
             try {
                 props.load(new FileInputStream(new File(getProjectBaseDirectory(), desktopConf)));
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Error loading embedded test properties", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Error loading embedded test properties: " + e.getMessage(), e);
             }
             for (Object prop : props.keySet()) {
                 overrides.put(prop.toString(), props.getProperty(prop.toString()));
@@ -73,7 +77,9 @@ public class AbstractAppTest extends UnitTest {
             XRuntime.updateProps(props);
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see com.neeve.server.Configurer#configure(java.lang.String[])
          */
         @Override
@@ -87,8 +93,12 @@ public class AbstractAppTest extends UnitTest {
             return new String[] { "--name", serverName };
         }
 
-        /* (non-Javadoc)
-         * @see com.neeve.util.UtlTailoring.PropertySource#getValue(java.lang.String, java.lang.String)
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.neeve.util.UtlTailoring.PropertySource#getValue(java.lang.String,
+         * java.lang.String)
          */
         @Override
         public String getValue(String key, String defaultValue) {
@@ -101,31 +111,31 @@ public class AbstractAppTest extends UnitTest {
     }
 
     public App startEmsPrimary() throws Throwable {
-        PocConfigurer configurer = new PocConfigurer("ems1", null);
+        EmbeddedTestServerConfigurer configurer = new EmbeddedTestServerConfigurer("ems1", null);
         EmbeddedServer server = EmbeddedServer.create(configurer);
         server.start();
-        return (App)server.getApplication("ems");
+        return (App) server.getApplication("ems");
     }
 
     public App startEmsBackup() throws Throwable {
-        PocConfigurer configurer = new PocConfigurer("ems2", null);
+        EmbeddedTestServerConfigurer configurer = new EmbeddedTestServerConfigurer("ems2", null);
         EmbeddedServer server = EmbeddedServer.create(configurer);
         server.start();
-        return (App)server.getApplication("ems");
+        return (App) server.getApplication("ems");
     }
 
     public Market startMarket() throws Throwable {
-        PocConfigurer configurer = new PocConfigurer("market", null);
+        EmbeddedTestServerConfigurer configurer = new EmbeddedTestServerConfigurer("market", null);
         EmbeddedServer server = EmbeddedServer.create(configurer);
         server.start();
-        return (Market)server.getApplication("market");
+        return (Market) server.getApplication("market");
     }
 
     public Client startClient() throws Throwable {
-        PocConfigurer configurer = new PocConfigurer("client", null);
+        EmbeddedTestServerConfigurer configurer = new EmbeddedTestServerConfigurer("client", null);
         EmbeddedServer server = EmbeddedServer.create(configurer);
         server.start();
-        return (Client)server.getApplication("client");
+        return (Client) server.getApplication("client");
     }
 
     final protected void waitForTransactionPipelineToEmpty(final AepEngine engine) throws Exception {
@@ -134,8 +144,7 @@ public class AbstractAppTest extends UnitTest {
             final long numCommitsPending = (engine.getStats().getNumCommitsStarted() - engine.getStats().getNumCommitsCompleted());
             if (numCommitsPending == 0l) {
                 break;
-            }
-            else {
+            } else {
                 System.out.println("Waiting for transaction pipeline to empty remaining: " + numCommitsPending);
                 Thread.sleep(100l);
             }
