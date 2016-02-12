@@ -12,6 +12,7 @@ A Hornet Based EMS App For Low Latency Trading
 **See how an application on top of the Hornet and The X Platform a 100% Pure Jave application platform with no infrastructure code needed can serve up trades in the 10s of microsends.**
 
 As Reference:
+* See the [Getting Started Page](https://github.com/neeveresearch/nvx-app-hornet-tick-to-trade/wiki/Getting-Started) for this application.
 * [Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-low-latency-apps)
 * [Introduction to the X Platform](www.neeveresearch.com/introduction)
 
