@@ -24,8 +24,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vendor.name>Neeve Research, LLC</vendor.name>
-        <nvx.core.version>3.1.76</nvx.core.version>
-        <nvx.hornet.version>1.1-M7</nvx.hornet.version>
+        <nvx.core.version>3.1.83</nvx.core.version>
+        <nvx.hornet.version>1.1-M10</nvx.hornet.version>
     </properties>
 
     <repositories>
@@ -276,6 +276,12 @@
             <artifactId>nvx-core-all</artifactId>
             <version>${nvx.core.version}</version>
             <classifier>linux-x86-64</classifier>
+            <exclusions>
+              <exclusion> 
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-all</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
