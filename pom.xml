@@ -41,7 +41,7 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        
+
         <!-- For Core X releases which require license agreement and credentials -->
         <repository>
             <id>neeve-licensed-releases</id>
@@ -54,7 +54,7 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        
+
         <!-- For Core X milestones which require license agreement and credentials -->
         <repository>
             <id>neeve-licensed-milestones</id>
@@ -109,7 +109,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-        
+
         <!-- For Core X milestones which require license agreement and credentials -->
         <pluginRepository>
             <id>neeve-licensed-releases</id>
@@ -240,7 +240,7 @@
         </plugins>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven 
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven
                     build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -276,12 +276,6 @@
             <artifactId>nvx-core-all</artifactId>
             <version>${nvx.core.version}</version>
             <classifier>linux-x86-64</classifier>
-            <exclusions>
-              <exclusion> 
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-all</artifactId>
-              </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
