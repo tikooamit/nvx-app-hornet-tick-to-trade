@@ -13,8 +13,8 @@ A Hornet Based EMS App For Low Latency Trading
 
 As Reference:
 * See the [Getting Started Page](https://github.com/neeveresearch/nvx-app-hornet-tick-to-trade/wiki/Getting-Started) for this application.
-* [Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-low-latency-apps)
-* [Introduction to the X Platform](www.neeveresearch.com/introduction)
+* [Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-low-latency-apps.pdf)
+* [Introduction to the X Platform](http://www.neeveresearch.com/introduction)
 
 ---
 
