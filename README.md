@@ -13,6 +13,36 @@ A Hornet Based EMS App For Low Latency Trading
 
 ![Tick To Trade App Flow](/docs/flow-diagram.png)
 
+```java
+    /**
+     * Handler for {@link EMSNewOrderSingle} messages sent by the client.
+     * <p>
+     * NewOrderSingles are dispatched to the SOR which will route the order to a
+     * liquidity venue. In this simple sample we only have one
+     * 
+     * @param message
+     *            The new order from a client.
+     */
+    @EventHandler
+    final public void onNewOrderSingle(final EMSNewOrderSingle message) {
+        // update statistics:
+        rcvdOrderCount++;
+        rcvdMessageCount++;
+        
+        // read fields from EMSNewOrderSingle (pojo) into an Order object
+        final Order order = EMSNewOrderSingleExtractor.extract(message, orderPool.get(null));
+        order.setNosPostWireTs(message.getPostWireTs());
+        orders.put(order.getClOrdId(), order);
+        
+        // dispatch a SORNewOrderSingle to the SOR for market routing.
+        app.send(SORNewOrderSinglePopulator.populate(SORNewOrderSingle.create(), order));
+        
+        // issue an EMSOrderNew which serves as an acknowledgement to the
+        // issuing client.
+        app.send(EMSOrderNewPopulator.populate(EMSOrderNew.create(), order));
+    }
+```
+
 As Reference:
 * See the [Getting Started Page](https://github.com/neeveresearch/nvx-app-hornet-tick-to-trade/wiki/Getting-Started) for this application.
 * [Take a look at the presentation](http://docs.neeveresearch.com/decks/nvx-low-latency-apps.pdf)
